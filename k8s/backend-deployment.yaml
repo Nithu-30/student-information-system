@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sis-backend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: sis-backend
+  template:
+    metadata:
+      labels:
+        app: sis-backend
+    spec:
+      containers:
+        - name: sis-backend
+          image: <dockerhub-username>/sis-backend:v1
+          ports:
+            - containerPort: 5000
+          env:
+            - name: DB_HOST
+              value: mysql
+          envFrom:
+            - secretRef:
+                name: mysql-secret
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 15
